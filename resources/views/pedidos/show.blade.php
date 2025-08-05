@@ -16,18 +16,35 @@
         th { background-color: #f8f9fa; }
         .btn { padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none; color: white; }
         .btn-secondary { background-color: #6c757d; }
+        .btn-success { background-color: #28a745; }
+        .btn-danger { background-color: #dc3545; }
+        .badge { display: inline-block; padding: 0.35em 0.65em; font-size: 0.75em; font-weight: 700; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.25rem; color: #fff; }
+        .badge-success { background-color: #28a745; }
+        .badge-warning { background-color: #ffc107; color: black; }
+        .badge-danger { background-color: #dc3545; }
+        form { display: inline; margin-left: 0.5rem; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Detalles del Pedido #{{ $pedido->id }}</h1>
+        <p><a href="{{ route('pedidos.index') }}" class="btn btn-secondary">Volver al listado</a></p>
 
         <ul class="details-list">
             <li><strong>Colaborador:</strong> {{ $pedido->colaborador->nombre }}</li>
             <li><strong>Valor Máximo del Colaborador:</strong> ${{ number_format($pedido->colaborador->valor_maximo_dinero, 2) }}</li>
             <li><strong>Fecha del Pedido:</strong> {{ $pedido->fecha_pedido }}</li>
             <li><strong>Valor Total del Pedido:</strong> ${{ number_format($pedido->valor_total, 2) }}</li>
-            <li><strong>Estado:</strong> {{ $pedido->estado }}</li>
+            <li>
+                <strong>Estado:</strong>
+                @if ($pedido->estado == 'pendiente')
+                    <span class="badge badge-warning">Pendiente</span>
+                @elseif ($pedido->estado == 'aprobado')
+                    <span class="badge badge-success">Aprobado</span>
+                @else
+                    <span class="badge badge-danger">Rechazado</span>
+                @endif
+            </li>
         </ul>
 
         <h2>Elementos del Pedido</h2>
@@ -52,7 +69,18 @@
             </tbody>
         </table>
 
-        <p style="margin-top: 2rem;"><a href="{{ route('pedidos.index') }}" class="btn btn-secondary">Volver al listado</a></p>
+        @if ($pedido->estado == 'pendiente')
+        <div style="text-align: center; margin-top: 2rem;">
+            <form action="{{ route('pedidos.approve', $pedido) }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-success">Aprobar Pedido</button>
+            </form>
+            <form action="{{ route('pedidos.reject', $pedido) }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-danger">Rechazar Pedido</button>
+            </form>
+        </div>
+        @endif
     </div>
 </body>
 </html>

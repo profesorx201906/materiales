@@ -12,8 +12,11 @@
         .alert { padding: 1rem; border-radius: 4px; margin-bottom: 1rem; }
         .alert-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
         .btn { padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none; color: white; }
+        .btn-success { background-color: #28a745; }
         .btn-primary { background-color: #007bff; }
+        .btn-danger { background-color: #dc3545; }
         .btn-secondary { background-color: #6c757d; }
+        .btn-info { background-color: #17a2b8; }
         table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
         th, td { padding: 0.75rem; border: 1px solid #dee2e6; text-align: left; }
         th { background-color: #f8f9fa; }
@@ -21,15 +24,14 @@
         .badge-success { background-color: #28a745; }
         .badge-warning { background-color: #ffc107; color: black; }
         .badge-danger { background-color: #dc3545; }
-        .btn-info { background-color: #17a2b8; color: white; }
+        form { display: inline; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>Gestión de Pedidos</h1>
-            <a href="{{ route('pedidos.create') }}" class="btn btn-primary">Crear Nuevo Pedido</a>
-        </div>
+            </div>
         <p><a href="{{ route('dashboard') }}" class="btn btn-secondary">Volver al Dashboard</a></p>
 
         @if (session('success'))
@@ -59,12 +61,24 @@
                         <td>
                             @if ($pedido->estado == 'pendiente')
                                 <span class="badge badge-warning">Pendiente</span>
-                            @else
+                            @elseif ($pedido->estado == 'aprobado')
                                 <span class="badge badge-success">Aprobado</span>
+                            @else
+                                <span class="badge badge-danger">Rechazado</span>
                             @endif
                         </td>
                         <td>
                             <a href="{{ route('pedidos.show', $pedido) }}" class="btn btn-info">Ver</a>
+                            @if ($pedido->estado == 'pendiente')
+                                <form action="{{ route('pedidos.approve', $pedido) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success">Aprobar</button>
+                                </form>
+                                <form action="{{ route('pedidos.reject', $pedido) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger">Rechazar</button>
+                                </form>
+                            @endif
                         </td>
                     </tr>
                 @empty

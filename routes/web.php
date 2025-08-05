@@ -5,7 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ColaboradorController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ElementoController;
-use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\PedidoAdminController;
 use App\Http\Controllers\ColaboradorDashboardController;
 
 // Rutas de autenticación
@@ -32,22 +32,20 @@ Route::middleware('auth')->group(function () {
 
     // Módulos del Administrador
     Route::middleware('can:manage-colaboradores')->group(function () {
-        // Rutas de recursos sin vinculación de modelo
-        Route::get('colaboradores', [ColaboradorController::class, 'index'])->name('colaboradores.index');
-        Route::get('colaboradores/create', [ColaboradorController::class, 'create'])->name('colaboradores.create');
-        Route::post('colaboradores', [ColaboradorController::class, 'store'])->name('colaboradores.store');
-        Route::get('colaboradores/{id}', [ColaboradorController::class, 'show'])->name('colaboradores.show');
-        Route::get('colaboradores/{id}/edit', [ColaboradorController::class, 'edit'])->name('colaboradores.edit');
-        Route::put('colaboradores/{id}', [ColaboradorController::class, 'update'])->name('colaboradores.update');
-        Route::delete('colaboradores/{id}', [ColaboradorController::class, 'destroy'])->name('colaboradores.destroy');
+        Route::resource('colaboradores', ColaboradorController::class);
     });
 
     Route::middleware('can:manage-inventario')->group(function () {
         Route::resource('categorias', CategoriaController::class);
         Route::resource('elementos', ElementoController::class);
     });
+
+    // Nuevas rutas para la gestión de pedidos por el administrador
     Route::middleware('can:manage-entregas')->group(function () {
-        Route::resource('pedidos', PedidoController::class)->only(['index', 'create', 'store', 'show']);
+        Route::get('pedidos', [PedidoAdminController::class, 'index'])->name('pedidos.index');
+        Route::get('pedidos/{pedido}', [PedidoAdminController::class, 'show'])->name('pedidos.show');
+        Route::post('pedidos/{pedido}/approve', [PedidoAdminController::class, 'approve'])->name('pedidos.approve');
+        Route::post('pedidos/{pedido}/reject', [PedidoAdminController::class, 'reject'])->name('pedidos.reject');
     });
 });
 

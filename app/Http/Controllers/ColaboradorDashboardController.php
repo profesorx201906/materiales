@@ -37,14 +37,22 @@ class ColaboradorDashboardController extends Controller
      */
     public function solicitarElementos()
     {
+        // Enlazar el usuario autenticado con su registro de colaborador y su categoría
         $colaborador = Colaborador::where('nombre', Auth::user()->nombre_usuario)->first();
         if (!$colaborador) {
             Log::error('Intento de acceso de colaborador sin registro: ' . Auth::user()->nombre_usuario);
             Auth::logout();
             return redirect()->route('login')->withErrors(['error' => 'No se encontró tu registro de colaborador. Por favor, contacta al administrador.']);
         }
-        
-        $elementos = Elemento::with('categoria')->latest()->get();
+
+        // Si el colaborador está asociado a una categoría, filtra los elementos
+        if ($colaborador->categoria_id) {
+            $elementos = Elemento::where('categoria_id', $colaborador->categoria_id)->latest()->get();
+        } else {
+            // Si el colaborador no tiene categoría asignada, no le mostramos elementos
+            $elementos = collect();
+        }
+
         $valor_gastado = $colaborador->pedidos()->where('estado', 'aprobado')->sum('valor_total');
         $valor_pendiente = $colaborador->pedidos()->where('estado', 'pendiente')->sum('valor_total');
         $valor_disponible = $colaborador->valor_maximo_dinero - ($valor_gastado + $valor_pendiente);
@@ -84,9 +92,10 @@ class ColaboradorDashboardController extends Controller
             $valor_gastado = $colaborador->pedidos()->sum('valor_total');
             $nuevo_valor_gastado = $valor_gastado + $valor_total_pedido;
     
-            $advertencia = null;
+            // Validar si el pedido excede el valor máximo
             if ($nuevo_valor_gastado > $colaborador->valor_maximo_dinero) {
-                $advertencia = 'ADVERTENCIA: Este pedido excede tu valor máximo. Se ha creado como pendiente, pero el administrador podría rechazarlo.';
+                DB::rollBack();
+                return back()->withErrors(['error' => 'El valor total de este pedido excede tu valor máximo asignado. No se puede crear el pedido.']);
             }
     
             $pedido = Pedido::create([
@@ -101,9 +110,6 @@ class ColaboradorDashboardController extends Controller
             DB::commit();
     
             $mensaje = 'Tu pedido ha sido creado exitosamente. Está pendiente de aprobación.';
-            if ($advertencia) {
-                $mensaje .= ' ' . $advertencia;
-            }
             
             return redirect()->route('colaborador.dashboard')->with('success', $mensaje);
     
