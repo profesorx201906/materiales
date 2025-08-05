@@ -20,7 +20,8 @@
 <body>
     <div class="form-container">
         <h1>Crear Nuevo Colaborador</h1>
-        
+        <p><a href="{{ route('dashboard') }}" class="btn btn-secondary">Volver al Dashboard</a></p>
+
         @if ($errors->any())
             <div class="error">
                 <ul>

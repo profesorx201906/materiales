@@ -32,8 +32,16 @@ Route::middleware('auth')->group(function () {
 
     // Módulos del Administrador
     Route::middleware('can:manage-colaboradores')->group(function () {
-        Route::resource('colaboradores', ColaboradorController::class);
+        // Rutas de recursos sin vinculación de modelo
+        Route::get('colaboradores', [ColaboradorController::class, 'index'])->name('colaboradores.index');
+        Route::get('colaboradores/create', [ColaboradorController::class, 'create'])->name('colaboradores.create');
+        Route::post('colaboradores', [ColaboradorController::class, 'store'])->name('colaboradores.store');
+        Route::get('colaboradores/{id}', [ColaboradorController::class, 'show'])->name('colaboradores.show');
+        Route::get('colaboradores/{id}/edit', [ColaboradorController::class, 'edit'])->name('colaboradores.edit');
+        Route::put('colaboradores/{id}', [ColaboradorController::class, 'update'])->name('colaboradores.update');
+        Route::delete('colaboradores/{id}', [ColaboradorController::class, 'destroy'])->name('colaboradores.destroy');
     });
+
     Route::middleware('can:manage-inventario')->group(function () {
         Route::resource('categorias', CategoriaController::class);
         Route::resource('elementos', ElementoController::class);

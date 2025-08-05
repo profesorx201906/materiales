@@ -53,15 +53,29 @@ class ColaboradorController extends Controller
     }
 
     // Mostrar el formulario para editar un colaborador
-    public function edit(Colaborador $colaborador)
+    public function edit($id)
     {
+        $colaborador = Colaborador::find($id);
+
+        if (!$colaborador) {
+            return Redirect::route('colaboradores.index')
+                             ->with('error', 'El colaborador solicitado no existe.');
+        }
+        
         $categorias = Categoria::all();
         return view('colaboradores.edit', compact('colaborador', 'categorias'));
     }
 
     // Actualizar un colaborador en la base de datos
-    public function update(Request $request, Colaborador $colaborador)
+    public function update(Request $request, $id)
     {
+        $colaborador = Colaborador::find($id);
+
+        if (!$colaborador) {
+            return Redirect::route('colaboradores.index')
+                             ->with('error', 'El colaborador solicitado no existe.');
+        }
+
         $request->validate([
             'nombre' => 'required|string|max:100',
             'numero_identificacion' => 'required|string|max:50|unique:colaboradores,numero_identificacion,'.$colaborador->id,
@@ -76,8 +90,15 @@ class ColaboradorController extends Controller
     }
 
     // Eliminar un colaborador de la base de datos
-    public function destroy(Colaborador $colaborador)
+    public function destroy($id)
     {
+        $colaborador = Colaborador::find($id);
+
+        if (!$colaborador) {
+             return Redirect::route('colaboradores.index')
+                             ->with('error', 'El colaborador solicitado no existe.');
+        }
+
         if ($colaborador->pedidos()->exists()) {
             return Redirect::route('colaboradores.index')
                              ->with('error', 'No se puede eliminar el colaborador porque tiene pedidos asociados.');

@@ -30,6 +30,7 @@
             <h1>Gestión de Colaboradores</h1>
             <a href="{{ route('colaboradores.create') }}" class="btn btn-success">Crear Nuevo Colaborador</a>
         </div>
+        <p><a href="{{ route('dashboard') }}" class="btn btn-secondary">Volver al Dashboard</a></p>
 
         @if (session('success'))
             <div class="alert alert-success">
