@@ -49,7 +49,7 @@
             </div>
             <div>
                 <h3>Valor Gastado</h3>
-                <p>${{ number_format($valor_gastado, 2) }}</p>
+                <p>${{ number_format($valor_aprobado, 2) }}</p>
             </div>
             <div>
                 <h3>Valor Pendiente</h3>
@@ -65,6 +65,7 @@
 
         <h2>Solicitudes</h2>
         <a href="{{ route('colaborador.solicitar') }}" class="btn">Solicitar Elementos</a>
+        <a href="{{ route('colaborador.reportes') }}" class="btn btn-secondary">Ver mis Pedidos</a>
     </div>
 </body>
 </html>

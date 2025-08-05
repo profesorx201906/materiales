@@ -7,6 +7,7 @@ use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ElementoController;
 use App\Http\Controllers\PedidoAdminController;
 use App\Http\Controllers\ColaboradorDashboardController;
+use App\Http\Controllers\ReportesController; // Importamos el nuevo controlador
 
 // Rutas de autenticación
 Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
@@ -29,6 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/colaborador/dashboard', [ColaboradorDashboardController::class, 'index'])->name('colaborador.dashboard');
     Route::get('/colaborador/solicitar-elementos', [ColaboradorDashboardController::class, 'solicitarElementos'])->name('colaborador.solicitar');
     Route::post('/colaborador/crear-pedido', [ColaboradorDashboardController::class, 'crearPedido'])->name('colaborador.crear-pedido');
+    Route::get('/colaborador/reportes', [ReportesController::class, 'index'])->name('colaborador.reportes');
 
     // Módulos del Administrador
     Route::middleware('can:manage-colaboradores')->group(function () {
@@ -47,6 +49,9 @@ Route::middleware('auth')->group(function () {
         Route::post('pedidos/{pedido}/approve', [PedidoAdminController::class, 'approve'])->name('pedidos.approve');
         Route::post('pedidos/{pedido}/reject', [PedidoAdminController::class, 'reject'])->name('pedidos.reject');
     });
+
+    // Ruta de reportes para el administrador
+    Route::middleware('can:manage-entregas')->get('/reports', [ReportesController::class, 'index'])->name('reports.index');
 });
 
 Route::get('/', function () {

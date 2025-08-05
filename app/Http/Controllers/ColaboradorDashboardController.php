@@ -25,11 +25,13 @@ class ColaboradorDashboardController extends Controller
             return redirect()->route('login')->withErrors(['error' => 'No se encontró tu registro de colaborador. Por favor, contacta al administrador.']);
         }
 
-        $valor_gastado = $colaborador->pedidos()->where('estado', 'aprobado')->sum('valor_total');
+        // Sumar todos los pedidos para el saldo
+        $valor_gastado = $colaborador->pedidos()->sum('valor_total');
         $valor_pendiente = $colaborador->pedidos()->where('estado', 'pendiente')->sum('valor_total');
-        $valor_disponible = $colaborador->valor_maximo_dinero - ($valor_gastado + $valor_pendiente);
+        $valor_aprobado = $colaborador->pedidos()->where('estado', 'aprobado')->sum('valor_total');
+        $valor_disponible = $colaborador->valor_maximo_dinero - $valor_gastado;
 
-        return view('dashboard.colaborador', compact('colaborador', 'valor_gastado', 'valor_pendiente', 'valor_disponible'));
+        return view('dashboard.colaborador', compact('colaborador', 'valor_aprobado', 'valor_pendiente', 'valor_disponible', 'valor_gastado'));
     }
 
     /**
@@ -37,7 +39,6 @@ class ColaboradorDashboardController extends Controller
      */
     public function solicitarElementos()
     {
-        // Enlazar el usuario autenticado con su registro de colaborador y su categoría
         $colaborador = Colaborador::where('nombre', Auth::user()->nombre_usuario)->first();
         if (!$colaborador) {
             Log::error('Intento de acceso de colaborador sin registro: ' . Auth::user()->nombre_usuario);
@@ -45,17 +46,15 @@ class ColaboradorDashboardController extends Controller
             return redirect()->route('login')->withErrors(['error' => 'No se encontró tu registro de colaborador. Por favor, contacta al administrador.']);
         }
 
-        // Si el colaborador está asociado a una categoría, filtra los elementos
         if ($colaborador->categoria_id) {
             $elementos = Elemento::where('categoria_id', $colaborador->categoria_id)->latest()->get();
         } else {
-            // Si el colaborador no tiene categoría asignada, no le mostramos elementos
             $elementos = collect();
         }
 
-        $valor_gastado = $colaborador->pedidos()->where('estado', 'aprobado')->sum('valor_total');
-        $valor_pendiente = $colaborador->pedidos()->where('estado', 'pendiente')->sum('valor_total');
-        $valor_disponible = $colaborador->valor_maximo_dinero - ($valor_gastado + $valor_pendiente);
+        // Se ajusta el valor disponible para el front-end
+        $valor_gastado = $colaborador->pedidos()->sum('valor_total');
+        $valor_disponible = $colaborador->valor_maximo_dinero - $valor_gastado;
         
         return view('colaborador.solicitar-elementos', compact('elementos', 'colaborador', 'valor_disponible'));
     }
@@ -92,7 +91,7 @@ class ColaboradorDashboardController extends Controller
             $valor_gastado = $colaborador->pedidos()->sum('valor_total');
             $nuevo_valor_gastado = $valor_gastado + $valor_total_pedido;
     
-            // Validar si el pedido excede el valor máximo
+            // Validación que genera el error que nos mostraste
             if ($nuevo_valor_gastado > $colaborador->valor_maximo_dinero) {
                 DB::rollBack();
                 return back()->withErrors(['error' => 'El valor total de este pedido excede tu valor máximo asignado. No se puede crear el pedido.']);
