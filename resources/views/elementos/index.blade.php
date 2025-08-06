@@ -1,27 +1,125 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Elementos</title>
     <style>
-        body { font-family: sans-serif; margin: 2rem; }
-        .container { max-width: 960px; margin: auto; }
-        h1 { text-align: center; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-        .alert { padding: 1rem; border-radius: 4px; margin-bottom: 1rem; }
-        .alert-success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
-        .btn { padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none; color: white; }
-        .btn-success { background-color: #28a745; }
-        .btn-warning { background-color: #ffc107; color: black; }
-        .btn-danger { background-color: #dc3545; }
-        .btn-secondary { background-color: #6c757d; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { padding: 0.75rem; border: 1px solid #dee2e6; text-align: left; }
-        th { background-color: #f8f9fa; }
-        form { display: inline; }
+        body {
+            font-family: sans-serif;
+            margin: 2rem;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th,
+        td {
+            padding: 0.75rem;
+            border: 1px solid #dee2e6;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
+
+        form {
+            display: inline;
+        }
+
+        /* Estilos para la paginación */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            padding: 0;
+            margin-top: 1rem;
+        }
+
+        .pagination li {
+            margin: 0 0.25rem;
+        }
+
+        .pagination a,
+        .pagination span {
+            display: inline-block;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #007bff;
+            font-size: 1rem;
+        }
+
+        .pagination a:hover {
+            background-color: #f0f0f0;
+        }
+
+        .pagination .active span {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -42,7 +140,8 @@
                     <th>ID</th>
                     <th>Nombre</th>
                     <th>Precio</th>
-                    <th>Unidad de Medida</th> <th>Categoría</th>
+                    <th>Unidad de Medida</th>
+                    <th>Categoría</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -52,13 +151,15 @@
                         <td>{{ $elemento->id }}</td>
                         <td>{{ $elemento->nombre }}</td>
                         <td>${{ number_format($elemento->precio_unitario, 2) }}</td>
-                        <td>{{ $elemento->unidad_de_medida ?? 'N/A' }}</td> <td>{{ $elemento->categoria->nombre }}</td>
+                        <td>{{ $elemento->unidad_de_medida ?? 'N/A' }}</td>
+                        <td>{{ $elemento->categoria->nombre }}</td>
                         <td>
                             <a href="{{ route('elementos.edit', $elemento) }}" class="btn btn-warning">Editar</a>
                             <form action="{{ route('elementos.destroy', $elemento) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro?');">Eliminar</button>
+                                <button type="submit" class="btn btn-danger"
+                                    onclick="return confirm('¿Estás seguro?');">Eliminar</button>
                             </form>
                         </td>
                     </tr>
@@ -69,8 +170,11 @@
                 @endforelse
             </tbody>
         </table>
-        
-        {{ $elementos->links() }}
+
+        <div style="font-size: 1rem; padding: 0.5rem 0.75rem;">
+            {{ $elementos->links('vendor.pagination.custom-pagination') }}
+        </div>
     </div>
 </body>
+
 </html>

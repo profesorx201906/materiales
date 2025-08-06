@@ -10,7 +10,7 @@
         h1 { text-align: center; }
         .filters { margin-bottom: 2rem; }
         .filters label { font-weight: bold; }
-        .filters select { padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; margin-right: 1rem; }
+        .filters select, .filters input { padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc; margin-right: 1rem; }
         .btn { padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none; color: white; border: none; cursor: pointer; }
         .btn-primary { background-color: #007bff; }
         .btn-secondary { background-color: #6c757d; }
@@ -21,16 +21,24 @@
         .badge-success { background-color: #28a745; }
         .badge-warning { background-color: #ffc107; color: black; }
         .badge-danger { background-color: #dc3545; }
+        .signature-container { margin-top: 4rem; text-align: center; }
+        .signature-line { border-top: 1px solid #000; display: inline-block; width: 300px; }
+        .text-right { text-align: right; }
+        @media print {
+            .filters, .btn, p.no-print {
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Reportes de Pedidos</h1>
-        <p><a href="{{ route('dashboard') }}" class="btn btn-secondary">Volver al Dashboard</a></p>
+        <p class="no-print"><a href="{{ route('dashboard') }}" class="btn btn-secondary">Volver al Dashboard</a></p>
 
         @if ($user->rol === 'administrador')
-            <h3>Filtros de Reporte</h3>
-            <div class="filters">
+            <h3 class="no-print">Filtros de Reporte</h3>
+            <div class="filters no-print">
                 <form action="{{ route('reports.index') }}" method="GET">
                     <label for="colaborador_id">Colaborador:</label>
                     <select name="colaborador_id">
@@ -52,10 +60,18 @@
                         @endforeach
                     </select>
 
+                    <label for="pedido_id">Número de Pedido:</label>
+                    <input type="text" name="pedido_id" value="{{ request('pedido_id') }}">
+
                     <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
                     <a href="{{ route('reports.index') }}" class="btn btn-secondary">Limpiar Filtros</a>
                 </form>
             </div>
+            @if ($pedidos->count() === 1)
+                <div style="text-align: right; margin-bottom: 1rem;" class="no-print">
+                    <button class="btn btn-success" onclick="window.print()">Imprimir en PDF</button>
+                </div>
+            @endif
         @endif
 
         <h3>Listado de Pedidos</h3>
@@ -70,7 +86,8 @@
                     <th>Estado</th>
                     <th>Elemento</th>
                     <th>Cantidad</th>
-                    <th>Valor Total</th>
+                    <th>Lote (Categoría)</th>
+                    <th>Valor Total por Elemento</th>
                 </tr>
             </thead>
             <tbody>
@@ -96,11 +113,10 @@
                                     @endif
                                 </td>
                             @endif
-                            <td>{{ $elemento->descripcion }}</td>
+                            <td>{{ $elemento->nombre }}</td>
                             <td>{{ $elemento->pivot->cantidad }}</td>
-                            @if ($key === 0)
-                                <td rowspan="{{ $totalElements }}">${{ number_format($pedido->valor_total, 2) }}</td>
-                            @endif
+                            <td>{{ $elemento->categoria->nombre }}</td>
+                            <td class="text-right" >${{ number_format($elemento->pivot->cantidad * $elemento->pivot->precio_unitario_en_pedido, 2) }}</td>
                         </tr>
                     @endforeach
                 @empty
@@ -109,9 +125,35 @@
                     </tr>
                 @endforelse
             </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="{{ $user->rol === 'administrador' ? 7 : 6 }}">Total Reporte</th>
+                    <th class="text-right">${{ number_format($total_reporte, 2) }}</th>
+                </tr>
+            </tfoot>
         </table>
         
         {{ $pedidos->links() }}
+        
+        @if ($pedidos->count() === 1)
+                <br>
+                <p><strong><pre>Solicitado por:     ____________________________</pre></strong> </p>
+                <p><strong><pre>C.C.                ____________________________</pre></strong> </p>
+                <p><strong><pre>Fecha de Solicitud: ____________________________</pre></strong> </p>
+
+        @endif
+
     </div>
+    
+    <script>
+        function printReport() {
+            var printContents = document.querySelector('table').outerHTML;
+            var originalContents = document.body.innerHTML;
+            document.body.innerHTML = '<h1>Reporte de Pedido</h1><br>' + printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+            location.reload(); // Recargar la página para restaurar el contenido
+        }
+    </script>
 </body>
 </html>
