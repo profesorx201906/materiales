@@ -42,7 +42,7 @@
                     <th>ID</th>
                     <th>Nombre</th>
                     <th>Precio</th>
-                    <th>Categoría</th>
+                    <th>Unidad de Medida</th> <th>Categoría</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -52,7 +52,7 @@
                         <td>{{ $elemento->id }}</td>
                         <td>{{ $elemento->nombre }}</td>
                         <td>${{ number_format($elemento->precio_unitario, 2) }}</td>
-                        <td>{{ $elemento->categoria->nombre }}</td>
+                        <td>{{ $elemento->unidad_de_medida ?? 'N/A' }}</td> <td>{{ $elemento->categoria->nombre }}</td>
                         <td>
                             <a href="{{ route('elementos.edit', $elemento) }}" class="btn btn-warning">Editar</a>
                             <form action="{{ route('elementos.destroy', $elemento) }}" method="POST">
@@ -64,7 +64,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5">No hay elementos registrados.</td>
+                        <td colspan="6">No hay elementos registrados.</td>
                     </tr>
                 @endforelse
             </tbody>

@@ -11,7 +11,11 @@
         .balance-info { text-align: center; margin-bottom: 2rem; padding: 1rem; background-color: #e9ecef; border-radius: 8px; }
         .balance-info p { font-size: 1.2rem; margin: 0; }
         .element-row { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; padding: 0.5rem; border: 1px solid #eee; border-radius: 4px; }
-        .element-row select, .element-row input { flex-grow: 1; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; }
+        
+        /* Ajuste para que el select sea más grande */
+        .element-row select.elemento-select { flex: 2; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; }
+        .element-row input.cantidad-input { flex: 1; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; }
+        
         .add-btn { background-color: #28a745; color: white; border: none; cursor: pointer; padding: 0.5rem 1rem; border-radius: 4px; }
         .remove-btn { background-color: #dc3545; color: white; border: none; cursor: pointer; padding: 0.5rem 1rem; border-radius: 4px; }
         .btn { padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none; color: white; }
@@ -25,8 +29,10 @@
 <body>
     <div class="form-container">
         <h1>Solicitar Elementos</h1>
+        <p><a href="{{ route('colaborador.dashboard') }}" class="btn btn-secondary">Volver al Dashboard</a></p>
         <div class="balance-info">
             <p><strong>Tu Valor Máximo:</strong> ${{ number_format($colaborador->valor_maximo_dinero, 2) }}</p>
+            <p><strong>Valor Pendiente:</strong> ${{ number_format($valor_pendiente, 2) }}</p>
             <p><strong>Tu Saldo Disponible:</strong> <span id="valor-disponible">${{ number_format($valor_disponible, 2) }}</span></p>
         </div>
 
@@ -46,15 +52,18 @@
             <h3>Elementos a solicitar</h3>
             <div id="elementos-container">
                 <div class="element-row">
-                    <select name="elementos[0][elemento_id]" class="elemento-select" required>
+                    <select name="elementos[0][elemento_id]" class="elemento-select" required onchange="calculateTotals()">
                         <option value="">Selecciona un elemento</option>
                         @foreach ($elementos as $elemento)
-                            <option value="{{ $elemento->id }}">
+                            <option value="{{ $elemento->id }}" title="{{ $elemento->descripcion }}">
                                 {{ $elemento->nombre }} (${{ number_format($elemento->precio_unitario, 2) }})
+                                @if($elemento->unidad_de_medida)
+                                    ({{ $elemento->unidad_de_medida }})
+                                @endif
                             </option>
                         @endforeach
                     </select>
-                    <input type="number" name="elementos[0][cantidad]" class="cantidad-input" placeholder="Cantidad" min="1" required>
+                    <input type="number" name="elementos[0][cantidad]" class="cantidad-input" placeholder="Cantidad" min="1" required oninput="calculateTotals()">
                     <button type="button" class="remove-btn" onclick="this.parentNode.remove(); calculateTotals();">Eliminar</button>
                 </div>
             </div>
@@ -121,8 +130,11 @@
                 <select name="elementos[${elementoIndex}][elemento_id]" class="elemento-select" required onchange="calculateTotals()">
                     <option value="">Selecciona un elemento</option>
                     @foreach ($elementos as $elemento)
-                        <option value="{{ $elemento->id }}">
+                        <option value="{{ $elemento->id }}" title="{{ $elemento->descripcion }}">
                             {{ $elemento->nombre }} (${{ number_format($elemento->precio_unitario, 2) }})
+                            @if($elemento->unidad_de_medida)
+                                ({{ $elemento->unidad_de_medida }})
+                            @endif
                         </option>
                     @endforeach
                 </select>

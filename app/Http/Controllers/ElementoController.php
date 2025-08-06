@@ -26,6 +26,7 @@ class ElementoController extends Controller
             'nombre' => 'required|string|max:100',
             'descripcion' => 'nullable|string',
             'precio_unitario' => 'required|numeric|min:0',
+            'unidad_de_medida' => 'nullable|string|max:50',
             'categoria_id' => 'required|exists:categorias,id',
         ]);
 
@@ -52,6 +53,7 @@ class ElementoController extends Controller
             'nombre' => 'required|string|max:100',
             'descripcion' => 'nullable|string',
             'precio_unitario' => 'required|numeric|min:0',
+            'unidad_de_medida' => 'nullable|string|max:50',
             'categoria_id' => 'required|exists:categorias,id',
         ]);
 

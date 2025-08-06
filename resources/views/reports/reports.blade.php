@@ -15,7 +15,7 @@
         .btn-primary { background-color: #007bff; }
         .btn-secondary { background-color: #6c757d; }
         table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-        th, td { padding: 0.75rem; border: 1px solid #dee2e6; text-align: left; }
+        th, td { padding: 0.75rem; border: 1px solid #dee2e6; text-align: left; vertical-align: top; }
         th { background-color: #f8f9fa; }
         .badge { display: inline-block; padding: 0.35em 0.65em; font-size: 0.75em; font-weight: 700; line-height: 1; text-align: center; white-space: nowrap; vertical-align: baseline; border-radius: 0.25rem; color: #fff; }
         .badge-success { background-color: #28a745; }
@@ -68,39 +68,44 @@
                     @endif
                     <th>Fecha</th>
                     <th>Estado</th>
-                    <th>Elementos</th>
+                    <th>Elemento</th>
+                    <th>Cantidad</th>
                     <th>Valor Total</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($pedidos as $pedido)
-                    <tr>
-                        <td>{{ $pedido->id }}</td>
-                        @if ($user->rol === 'administrador')
-                            <td>{{ $pedido->colaborador->nombre }}</td>
-                        @endif
-                        <td>{{ $pedido->fecha_pedido }}</td>
-                        <td>
-                            @if ($pedido->estado == 'pendiente')
-                                <span class="badge badge-warning">Pendiente</span>
-                            @elseif ($pedido->estado == 'aprobado')
-                                <span class="badge badge-success">Aprobado</span>
-                            @else
-                                <span class="badge badge-danger">Rechazado</span>
+                    @php
+                        $totalElements = count($pedido->elementos);
+                    @endphp
+                    @foreach ($pedido->elementos as $key => $elemento)
+                        <tr>
+                            @if ($key === 0)
+                                <td rowspan="{{ $totalElements }}">{{ $pedido->id }}</td>
+                                @if ($user->rol === 'administrador')
+                                    <td rowspan="{{ $totalElements }}">{{ $pedido->colaborador->nombre }}</td>
+                                @endif
+                                <td rowspan="{{ $totalElements }}">{{ $pedido->fecha_pedido }}</td>
+                                <td rowspan="{{ $totalElements }}">
+                                    @if ($pedido->estado == 'pendiente')
+                                        <span class="badge badge-warning">Pendiente</span>
+                                    @elseif ($pedido->estado == 'aprobado')
+                                        <span class="badge badge-success">Aprobado</span>
+                                    @else
+                                        <span class="badge badge-danger">Rechazado</span>
+                                    @endif
+                                </td>
                             @endif
-                        </td>
-                        <td>
-                            <ul>
-                                @foreach ($pedido->elementos as $elemento)
-                                    <li>{{ $elemento->nombre }} (x{{ $elemento->pivot->cantidad }})</li>
-                                @endforeach
-                            </ul>
-                        </td>
-                        <td>${{ number_format($pedido->valor_total, 2) }}</td>
-                    </tr>
+                            <td>{{ $elemento->descripcion }}</td>
+                            <td>{{ $elemento->pivot->cantidad }}</td>
+                            @if ($key === 0)
+                                <td rowspan="{{ $totalElements }}">${{ number_format($pedido->valor_total, 2) }}</td>
+                            @endif
+                        </tr>
+                    @endforeach
                 @empty
                     <tr>
-                        <td colspan="{{ $user->rol === 'administrador' ? 6 : 5 }}">No hay pedidos que coincidan con los criterios.</td>
+                        <td colspan="{{ $user->rol === 'administrador' ? 7 : 6 }}">No hay pedidos que coincidan con los criterios.</td>
                     </tr>
                 @endforelse
             </tbody>

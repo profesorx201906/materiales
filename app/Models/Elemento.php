@@ -15,6 +15,7 @@ class Elemento extends Model
         'nombre',
         'descripcion',
         'precio_unitario',
+        'unidad_de_medida', // Campo nuevo
         'categoria_id',
     ];
 

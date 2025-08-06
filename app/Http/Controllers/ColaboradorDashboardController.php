@@ -25,10 +25,9 @@ class ColaboradorDashboardController extends Controller
             return redirect()->route('login')->withErrors(['error' => 'No se encontró tu registro de colaborador. Por favor, contacta al administrador.']);
         }
 
-        // Sumar todos los pedidos para el saldo
-        $valor_gastado = $colaborador->pedidos()->sum('valor_total');
-        $valor_pendiente = $colaborador->pedidos()->where('estado', 'pendiente')->sum('valor_total');
         $valor_aprobado = $colaborador->pedidos()->where('estado', 'aprobado')->sum('valor_total');
+        $valor_pendiente = $colaborador->pedidos()->where('estado', 'pendiente')->sum('valor_total');
+        $valor_gastado = $valor_aprobado + $valor_pendiente;
         $valor_disponible = $colaborador->valor_maximo_dinero - $valor_gastado;
 
         return view('dashboard.colaborador', compact('colaborador', 'valor_aprobado', 'valor_pendiente', 'valor_disponible', 'valor_gastado'));
@@ -51,12 +50,13 @@ class ColaboradorDashboardController extends Controller
         } else {
             $elementos = collect();
         }
-
-        // Se ajusta el valor disponible para el front-end
-        $valor_gastado = $colaborador->pedidos()->sum('valor_total');
+        
+        $valor_aprobado = $colaborador->pedidos()->where('estado', 'aprobado')->sum('valor_total');
+        $valor_pendiente = $colaborador->pedidos()->where('estado', 'pendiente')->sum('valor_total');
+        $valor_gastado = $valor_aprobado + $valor_pendiente;
         $valor_disponible = $colaborador->valor_maximo_dinero - $valor_gastado;
         
-        return view('colaborador.solicitar-elementos', compact('elementos', 'colaborador', 'valor_disponible'));
+        return view('colaborador.solicitar-elementos', compact('elementos', 'colaborador', 'valor_disponible', 'valor_pendiente'));
     }
 
     /**
@@ -91,7 +91,6 @@ class ColaboradorDashboardController extends Controller
             $valor_gastado = $colaborador->pedidos()->sum('valor_total');
             $nuevo_valor_gastado = $valor_gastado + $valor_total_pedido;
     
-            // Validación que genera el error que nos mostraste
             if ($nuevo_valor_gastado > $colaborador->valor_maximo_dinero) {
                 DB::rollBack();
                 return back()->withErrors(['error' => 'El valor total de este pedido excede tu valor máximo asignado. No se puede crear el pedido.']);

@@ -20,6 +20,7 @@
 <body>
     <div class="form-container">
         <h1>Editar Elemento</h1>
+        <p><a href="{{ route('elementos.index') }}" class="btn btn-secondary">Volver al Listado</a></p>
         <form action="{{ route('elementos.update', $elemento) }}" method="POST">
             @csrf
             @method('PUT')
@@ -41,6 +42,13 @@
                 <label for="precio_unitario">Precio Unitario</label>
                 <input type="number" id="precio_unitario" name="precio_unitario" step="0.01" value="{{ old('precio_unitario', $elemento->precio_unitario) }}" required>
                 @error('precio_unitario')
+                    <div class="error">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="form-group">
+                <label for="unidad_de_medida">Unidad de Medida (Ej: cm, ml, unidad)</label>
+                <input type="text" id="unidad_de_medida" name="unidad_de_medida" value="{{ old('unidad_de_medida', $elemento->unidad_de_medida) }}">
+                @error('unidad_de_medida')
                     <div class="error">{{ $message }}</div>
                 @enderror
             </div>
