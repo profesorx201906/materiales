@@ -7,14 +7,14 @@ use Illuminate\Database\Seeder;
 use App\Models\Elemento;
 use App\Models\Categoria;
 
-class LoteTresElementoSeeder extends Seeder
+class LoteUnoElementoSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        // Busca la categoría "LOTE 3: BISUTERÍA"
+        // Busca la categoría "LOTE 1: BISUTERÍA"
         $categoria = Categoria::where('nombre', 'LOTE 1: ARTESANÍAS')->first();
 
         if (!$categoria) {
