@@ -29,7 +29,6 @@
             </form>
         </div>
         
-        <h1>Dashboard de Colaborador</h1>
         
         @if (session('success'))
             <div class="alert alert-success">
