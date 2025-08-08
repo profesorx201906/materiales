@@ -8,10 +8,23 @@ use Illuminate\Http\Request;
 
 class ElementoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $elementos = Elemento::with('categoria')->latest()->paginate(10);
-        return view('elementos.index', compact('elementos'));
+        $query = Elemento::with('categoria');
+        $categorias = Categoria::all();
+
+        if ($request->filled('categoria_id')) {
+            $query->where('categoria_id', $request->categoria_id);
+        }
+
+        if ($request->filled('nombre')) {
+            $query->where('nombre', 'like', '%' . $request->nombre . '%');
+        }
+
+        // Se ajusta el orden de 'latest()' a 'orderBy('id', 'asc')'
+        $elementos = $query->orderBy('id', 'asc')->paginate(10);
+        
+        return view('elementos.index', compact('elementos', 'categorias'));
     }
 
     public function create()
