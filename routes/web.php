@@ -8,6 +8,7 @@ use App\Http\Controllers\ElementoController;
 use App\Http\Controllers\PedidoAdminController;
 use App\Http\Controllers\ColaboradorDashboardController;
 use App\Http\Controllers\ReportesController;
+use App\Http\Controllers\CsvImportController;
 
 // Rutas de autenticación
 Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
@@ -40,6 +41,9 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:manage-inventario')->group(function () {
         Route::resource('categorias', CategoriaController::class);
         Route::resource('elementos', ElementoController::class);
+        Route::get('/importar-elementos', [CsvImportController::class, 'showImportForm'])->name('csv.import.form');
+        Route::post('/importar-elementos', [CsvImportController::class, 'import'])->name('csv.import');
+
     });
 
     // Nuevas rutas para la gestión de pedidos por el administrador
@@ -48,7 +52,7 @@ Route::middleware('auth')->group(function () {
         Route::get('pedidos/{pedido}', [PedidoAdminController::class, 'show'])->name('pedidos.show');
         Route::post('pedidos/{pedido}/approve', [PedidoAdminController::class, 'approve'])->name('pedidos.approve');
         Route::post('pedidos/{pedido}/reject', [PedidoAdminController::class, 'reject'])->name('pedidos.reject');
-        
+
         // Ruta de reportes para el administrador
         Route::get('/reports', [ReportesController::class, 'index'])->name('reports.index');
     });

@@ -6,7 +6,7 @@
     <title>Gestión de Elementos</title>
     <style>
         body { font-family: sans-serif; margin: 2rem; }
-        .container { max-width: 960px; margin: auto; }
+        .container { max-width: 1200px; margin: auto; }
         h1 { text-align: center; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         .alert { padding: 1rem; border-radius: 4px; margin-bottom: 1rem; }
@@ -20,6 +20,8 @@
         th, td { padding: 0.75rem; border: 1px solid #dee2e6; text-align: left; }
         th { background-color: #f8f9fa; }
         form { display: inline; }
+        .text-right { text-align: right; }
+        .text-center {text-align: center;}
         
         /* Estilos para la paginación */
         .pagination {
@@ -95,24 +97,24 @@
 
         <table>
             <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Precio</th>
-                    <th>Unidad de Medida</th>
-                    <th>Categoría</th>
-                    <th>Acciones</th>
+                <tr >
+                    <th class="text-center">ID</th>
+                    <th class="text-center">Nombre</th>
+                    <th class="text-center">Precio</th>
+                    <th class="text-center">Unidad de Medida</th>
+                    <th class="text-center">Categoría</th>
+                    <th class="text-center">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse ($elementos as $elemento)
                     <tr>
                         <td>{{ $elemento->id }}</td>
-                        <td>{{ $elemento->nombre }}</td>
-                        <td>${{ number_format($elemento->precio_unitario, 2) }}</td>
+                        <td style="width: 400px;">{{ $elemento->descripcion }}</td>
+                        <td class="text-right">${{ number_format($elemento->precio_unitario, 2) }}</td>
                         <td>{{ $elemento->unidad_de_medida ?? 'N/A' }}</td>
-                        <td>{{ $elemento->categoria->nombre }}</td>
-                        <td>
+                        <td style="width: 200px;">{{ $elemento->categoria->nombre }}</td>
+                        <td >
                             <a href="{{ route('elementos.edit', $elemento) }}" class="btn btn-warning">Editar</a>
                             <form action="{{ route('elementos.destroy', $elemento) }}" method="POST">
                                 @csrf

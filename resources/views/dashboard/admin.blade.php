@@ -31,6 +31,7 @@
             <li><a href="{{ route('elementos.index') }}">Gestión de Elementos</a></li>
             <li><a href="{{ route('pedidos.index') }}">Gestión de Pedidos</a></li>
             <li><a href="{{ route('reports.index') }}">Generar Reportes</a></li>
+            <li><a href="{{ route('csv.import.form') }}">Importar Elementos (CSV)</a></li>
         </ul>
     </div>
 </body>
