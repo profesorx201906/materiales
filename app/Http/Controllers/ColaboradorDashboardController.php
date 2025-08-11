@@ -27,8 +27,8 @@ class ColaboradorDashboardController extends Controller
 
         $valor_aprobado = $colaborador->pedidos()->where('estado', 'aprobado')->sum('valor_total');
         $valor_pendiente = $colaborador->pedidos()->where('estado', 'pendiente')->sum('valor_total');
-        $valor_gastado = $valor_aprobado + $valor_pendiente;
-        $valor_disponible = $colaborador->valor_maximo_dinero - $valor_gastado;
+        $valor_gastado = $valor_aprobado; // El valor gastado es la suma de los pedidos aprobados
+        $valor_disponible = $colaborador->valor_maximo_dinero - ($valor_aprobado + $valor_pendiente);
 
         return view('dashboard.colaborador', compact('colaborador', 'valor_aprobado', 'valor_pendiente', 'valor_disponible', 'valor_gastado'));
     }
@@ -46,15 +46,15 @@ class ColaboradorDashboardController extends Controller
         }
 
         if ($colaborador->categoria_id) {
-            $elementos = Elemento::where('categoria_id', $colaborador->categoria_id)->latest()->get();
+            $elementos = Elemento::where('categoria_id', $colaborador->categoria_id)->orderBy('nombre', 'asc')->get();
         } else {
             $elementos = collect();
         }
         
         $valor_aprobado = $colaborador->pedidos()->where('estado', 'aprobado')->sum('valor_total');
         $valor_pendiente = $colaborador->pedidos()->where('estado', 'pendiente')->sum('valor_total');
-        $valor_gastado = $valor_aprobado + $valor_pendiente;
-        $valor_disponible = $colaborador->valor_maximo_dinero - $valor_gastado;
+        $valor_gastado = $valor_aprobado; // El valor gastado es la suma de los pedidos aprobados
+        $valor_disponible = $colaborador->valor_maximo_dinero - ($valor_aprobado + $valor_pendiente);
         
         return view('colaborador.solicitar-elementos', compact('elementos', 'colaborador', 'valor_disponible', 'valor_pendiente'));
     }
@@ -88,8 +88,10 @@ class ColaboradorDashboardController extends Controller
                 ];
             }
     
-            $valor_gastado = $colaborador->pedidos()->sum('valor_total');
-            $nuevo_valor_gastado = $valor_gastado + $valor_total_pedido;
+            $valor_aprobado = $colaborador->pedidos()->where('estado', 'aprobado')->sum('valor_total');
+            $valor_pendiente = $colaborador->pedidos()->where('estado', 'pendiente')->sum('valor_total');
+            $valor_gastado_actual = $valor_aprobado + $valor_pendiente;
+            $nuevo_valor_gastado = $valor_gastado_actual + $valor_total_pedido;
     
             if ($nuevo_valor_gastado > $colaborador->valor_maximo_dinero) {
                 DB::rollBack();

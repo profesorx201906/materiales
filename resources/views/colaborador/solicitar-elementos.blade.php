@@ -1,39 +1,199 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solicitar Elementos</title>
     <style>
-        body { font-family: sans-serif; margin: 2rem; }
-        .form-container { max-width: 800px; margin: auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1, h2 { text-align: center; }
-        .balance-info { text-align: center; margin-bottom: 2rem; padding: 1rem; background-color: #e9ecef; border-radius: 8px; }
-        .balance-info p { font-size: 1.2rem; margin: 0; }
-        .element-row { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; padding: 0.5rem; border: 1px solid #eee; border-radius: 4px; }
-        
+        body {
+            font-family: sans-serif;
+            margin: 2rem;
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1,
+        h2 {
+            text-align: center;
+        }
+
+        .balance-info {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: #e9ecef;
+            border-radius: 8px;
+        }
+
+        .balance-info p {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        .element-input-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+
         /* Ajuste para que el select sea más grande */
-        .element-row select.elemento-select { flex: 2; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; }
-        .element-row input.cantidad-input { flex: 1; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; }
-        
-        .add-btn { background-color: #28a745; color: white; border: none; cursor: pointer; padding: 0.5rem 1rem; border-radius: 4px; }
-        .remove-btn { background-color: #dc3545; color: white; border: none; cursor: pointer; padding: 0.5rem 1rem; border-radius: 4px; }
-        .btn { padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none; color: white; }
-        .btn-primary { background-color: #007bff; border: none; cursor: pointer; }
-        .btn-secondary { background-color: #6c757d; }
-        .error { color: #dc3545; font-size: 0.8rem; margin-top: 0.25rem; }
-        .total-summary { margin-top: 1.5rem; text-align: center; }
-        .total-summary p { margin: 0.5rem 0; font-size: 1.1rem; font-weight: bold; }
+        .element-input-row select.elemento-select {
+            flex: 2;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .element-input-row input.cantidad-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .add-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            border-radius: 4px;
+        }
+
+        .remove-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .total-summary {
+            margin-top: 1.5rem;
+        }
+
+        .total-summary table {
+            width: 100%;
+        }
+
+        .total-summary th,
+        .total-summary td {
+            border: none;
+            padding: 0.5rem;
+        }
+
+        .total-summary th {
+            text-align: left;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th,
+        td {
+            padding: 0.75rem;
+            border: 1px solid #dee2e6;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8f9fa;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .ancho {
+            width: 50%;
+            margin-left: auto;
+            margin-right: 0;
+        }
+
+        .centro {
+            width: 70%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .tooltip {
+            position: absolute;
+            background-color: #333;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            z-index: 10;
+            display: none;
+            max-width: 300px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
+
 <body>
     <div class="form-container">
         <h1>Solicitar Elementos</h1>
         <p><a href="{{ route('colaborador.dashboard') }}" class="btn btn-secondary">Volver al Dashboard</a></p>
+
         <div class="balance-info">
-            <p><strong>Tu Valor Máximo:</strong> ${{ number_format($colaborador->valor_maximo_dinero, 2) }}</p>
-            <p><strong>Valor Pendiente:</strong> ${{ number_format($valor_pendiente, 2) }}</p>
-            <p><strong>Tu Saldo Disponible:</strong> <span id="valor-disponible">${{ number_format($valor_disponible, 2) }}</span></p>
+            <table class="centro">
+                <tbody>
+                    <tr>
+                        <td><strong>Tu Valor Máximo:</strong></td>
+                        <td class="text-right"><span>${{ number_format($colaborador->valor_maximo_dinero, 2) }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Valor Pendiente:</strong></td>
+                        <td class="text-right"><span>${{ number_format($valor_pendiente, 2) }}</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tu Saldo Disponible:</strong></td>
+                        <td class="text-right"><span
+                                id="valor-disponible">${{ number_format($valor_disponible, 2) }}</span></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         @if ($errors->any())
@@ -45,73 +205,91 @@
                 </ul>
             </div>
         @endif
-        
+
         <form action="{{ route('colaborador.crear-pedido') }}" method="POST">
             @csrf
+            <h3>Añadir Elemento</h3>
+            <div class="element-input-row">
+                <select id="elemento-select" class="elemento-select" required onchange="showDescription(this)">
+                    <option value="">Selecciona un elemento</option>
+                    @foreach ($elementos as $elemento)
+                        <option value="{{ $elemento->id }}" data-descripcion="{{ $elemento->descripcion }}"
+                            data-precio="{{ $elemento->precio_unitario }}">
+                            {{ $elemento->nombre }} (${{ number_format($elemento->precio_unitario, 2) }})
+                            @if($elemento->unidad_de_medida)
+                                ({{ $elemento->unidad_de_medida }})
+                            @endif
+                        </option>
+                    @endforeach
+                </select>
+                <input type="number" id="cantidad-input" class="cantidad-input" placeholder="Cantidad" min="1" value="1"
+                    required>
+                <button type="button" class="add-btn" onclick="addItemToTable()">Agregar</button>
+            </div>
 
-            <h3>Elementos a solicitar</h3>
-            <div id="elementos-container">
-                <div class="element-row">
-                    <select name="elementos[0][elemento_id]" class="elemento-select" required onchange="calculateTotals()">
-                        <option value="">Selecciona un elemento</option>
-                        @foreach ($elementos as $elemento)
-                            <option value="{{ $elemento->id }}" title="{{ $elemento->descripcion }}">
-                                {{ $elemento->nombre }} (${{ number_format($elemento->precio_unitario, 2) }})
-                                @if($elemento->unidad_de_medida)
-                                    ({{ $elemento->unidad_de_medida }})
-                                @endif
-                            </option>
-                        @endforeach
-                    </select>
-                    <input type="number" name="elementos[0][cantidad]" class="cantidad-input" placeholder="Cantidad" min="1" required oninput="calculateTotals()">
-                    <button type="button" class="remove-btn" onclick="this.parentNode.remove(); calculateTotals();">Eliminar</button>
-                </div>
-            </div>
-            
-            <button type="button" class="add-btn" onclick="addElemento()">Añadir Otro Elemento</button>
-            
-            <div class="total-summary">
-                <p><strong>Total del Pedido:</strong> <span id="total-pedido">$0.00</span></p>
-                <p><strong>Saldo Restante:</strong> <span id="saldo-restante">${{ number_format($valor_disponible, 2) }}</span></p>
-            </div>
+            <h3>Elementos del Pedido</h3>
+            <table id="pedido-table">
+                <thead>
+                    <tr>
+                        <th>Elemento</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Subtotal</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+
+
+            <table class="ancho">
+                <tbody>
+                    <tr>
+                        <td>Total del Pedido:</td>
+                        <td class="text-right"><span id="total-pedido">$0.00</span></td>
+                    </tr>
+                    <tr>
+                        <td>Saldo Restante:</td>
+                        <td class="text-right"><span
+                                id="saldo-restante">${{ number_format($valor_disponible, 2) }}</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
             <br>
 
-            <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
+            <input type="hidden" name="fecha_pedido" value="{{ date('Y-m-d') }}">
+            <button type="submit" class="btn btn-primary" id="submit-btn" disabled>Enviar Solicitud</button>
             <a href="{{ route('colaborador.dashboard') }}" class="btn btn-secondary">Cancelar</a>
         </form>
     </div>
 
+    <div id="description-tooltip" class="tooltip"></div>
+
     <script>
         const elementos = @json($elementos->keyBy('id'));
         const valorDisponibleInicial = {{ $valor_disponible }};
-        let elementoIndex = 1;
+        let itemCounter = 0;
+
+        function formatCurrency(value) {
+            return `$${parseFloat(value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
+        }
 
         function calculateTotals() {
             let totalPedido = 0;
-            const elementRows = document.querySelectorAll('#elementos-container .element-row');
-
-            elementRows.forEach(row => {
-                const select = row.querySelector('.elemento-select');
-                const cantidadInput = row.querySelector('.cantidad-input');
-                
-                const elementoId = select.value;
-                const cantidad = cantidadInput.value;
-
-                if (elementoId && cantidad > 0) {
-                    const elemento = elementos[elementoId];
-                    if (elemento) {
-                        totalPedido += parseFloat(elemento.precio_unitario) * parseFloat(cantidad);
-                    }
-                }
+            const subtotalElements = document.querySelectorAll('.subtotal-item');
+            subtotalElements.forEach(element => {
+                totalPedido += parseFloat(element.dataset.value);
             });
 
             const saldoRestante = valorDisponibleInicial - totalPedido;
 
-            document.getElementById('total-pedido').innerText = `$${totalPedido.toFixed(2)}`;
-            document.getElementById('saldo-restante').innerText = `$${saldoRestante.toFixed(2)}`;
-            
+            document.getElementById('total-pedido').innerText = formatCurrency(totalPedido);
+            document.getElementById('saldo-restante').innerText = formatCurrency(saldoRestante);
+
             const saldoRestanteElement = document.getElementById('saldo-restante');
-            const submitButton = document.querySelector('.btn-primary');
+            const submitButton = document.getElementById('submit-btn');
 
             if (saldoRestante < 0) {
                 saldoRestanteElement.style.color = 'red';
@@ -120,46 +298,78 @@
                 saldoRestanteElement.style.color = 'black';
                 submitButton.disabled = false;
             }
+
+            if (subtotalElements.length === 0) {
+                submitButton.disabled = true;
+            }
         }
 
-        function addElemento() {
-            const container = document.getElementById('elementos-container');
-            const newRow = document.createElement('div');
-            newRow.classList.add('element-row');
+        function addItemToTable() {
+            const select = document.getElementById('elemento-select');
+            const cantidadInput = document.getElementById('cantidad-input');
+            const elementoId = select.value;
+            const cantidad = cantidadInput.value;
+
+            if (!elementoId || cantidad <= 0) {
+                alert('Por favor, selecciona un elemento y una cantidad válida.');
+                return;
+            }
+
+            const elemento = elementos[elementoId];
+            const subtotal = parseFloat(elemento.precio_unitario) * parseFloat(cantidad);
+
+            const tableBody = document.querySelector('#pedido-table tbody');
+            const newRow = tableBody.insertRow();
+
             newRow.innerHTML = `
-                <select name="elementos[${elementoIndex}][elemento_id]" class="elemento-select" required onchange="calculateTotals()">
-                    <option value="">Selecciona un elemento</option>
-                    @foreach ($elementos as $elemento)
-                        <option value="{{ $elemento->id }}" title="{{ $elemento->descripcion }}">
-                            {{ $elemento->nombre }} (${{ number_format($elemento->precio_unitario, 2) }})
-                            @if($elemento->unidad_de_medida)
-                                ({{ $elemento->unidad_de_medida }})
-                            @endif
-                        </option>
-                    @endforeach
-                </select>
-                <input type="number" name="elementos[${elementoIndex}][cantidad]" class="cantidad-input" placeholder="Cantidad" min="1" required oninput="calculateTotals()">
-                <button type="button" class="remove-btn" onclick="this.parentNode.remove(); calculateTotals();">Eliminar</button>
+                <td>${elemento.descripcion}</td>
+                <td>${cantidad}</td>
+                <td class="text-right">${formatCurrency(elemento.precio_unitario)}</td>
+                <td class="subtotal-item text-right" data-value="${subtotal}">${formatCurrency(subtotal)}</td>
+                <td><button type="button" class="remove-btn" onclick="this.closest('tr').remove(); calculateTotals();">Quitar</button></td>
+                <input type="hidden" name="elementos[${itemCounter}][elemento_id]" value="${elementoId}">
+                <input type="hidden" name="elementos[${itemCounter}][cantidad]" value="${cantidad}">
             `;
-            container.appendChild(newRow);
-            elementoIndex++;
+
+            itemCounter++;
             calculateTotals();
+        }
+
+        function showDescription(selectElement, event) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            const tooltip = document.getElementById('description-tooltip');
+
+            if (selectedOption.dataset.descripcion) {
+                tooltip.innerText = selectedOption.dataset.descripcion;
+                tooltip.style.display = 'block';
+                tooltip.style.left = `${event.pageX + 15}px`;
+                tooltip.style.top = `${event.pageY}px`;
+            } else {
+                tooltip.style.display = 'none';
+            }
+        }
+
+        function hideTooltip() {
+            const tooltip = document.getElementById('description-tooltip');
+            tooltip.style.display = 'none';
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             const container = document.getElementById('elementos-container');
             container.addEventListener('change', (event) => {
                 if (event.target.classList.contains('elemento-select')) {
-                    calculateTotals();
-                }
-            });
-            container.addEventListener('input', (event) => {
-                if (event.target.classList.contains('cantidad-input')) {
-                    calculateTotals();
+                    const select = event.target;
+                    const selectedOption = select.options[select.selectedIndex];
+                    const tooltip = document.getElementById('description-tooltip');
+
+                    if (selectedOption.dataset.descripcion) {
+                        tooltip.innerText = selectedOption.dataset.descripcion;
+                    }
                 }
             });
             calculateTotals();
         });
     </script>
 </body>
+
 </html>

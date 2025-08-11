@@ -24,6 +24,8 @@
         .signature-container { margin-top: 4rem; text-align: center; }
         .signature-line { border-top: 1px solid #000; display: inline-block; width: 300px; }
         .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .ancho-fecha{width: 90px;}
         @media print {
             .filters, .btn, p.no-print {
                 display: none;
@@ -74,20 +76,42 @@
             @endif
         @endif
 
-        <h3>Listado de Pedidos</h3>
+       
+        @if (request('pedido_id'))
+            @foreach ($pedidos as $pedido)
+                @if ($pedido->elementos->isNotEmpty())
+                    <p><strong>Pedido:</strong> {{ $pedido->id }}</p>
+                    <p><strong>Colaborador:</strong> {{ $pedido->colaborador->nombre }}</p>
+                    <p><strong>Lote (Categoría):</strong> {{ $pedido->elementos->first()->categoria->nombre }}</p>
+                    <p><strong>Fecha:</strong> {{ $pedido->fecha_pedido  }}</p>
+                @endif
+            @endforeach
+            @else
+         <h3>Listado de Pedidos</h3>
+
+        @endif
+        
         <table>
             <thead>
                 <tr>
-                    <th>ID Pedido</th>
-                    @if ($user->rol === 'administrador')
+                    @if (!request('pedido_id'))
+                    <th class="text-center">ID</th>
+
+                    @endif
+
+                    @if ($user->rol === 'administrador' && !request('pedido_id'))
                         <th>Colaborador</th>
                     @endif
-                    <th>Fecha</th>
-                    <th>Estado</th>
-                    <th>Elemento</th>
-                    <th>Cantidad</th>
-                    <th>Lote (Categoría)</th>
-                    <th>Valor Total por Elemento</th>
+                    @if (!request('pedido_id'))
+                    <th class="text-center ancho-fecha">Fecha</th>
+                        <th>Estado</th>
+                    @endif
+                    <th class="text-center">Elemento</th>
+                    <th class="text-center">Cantidad</th>
+                    @if (!request('pedido_id'))
+                        <th>Lote (Categoría)</th>
+                    @endif
+                    <th class="text-center ancho-fecha">Valor Total</th>
                 </tr>
             </thead>
             <tbody>
@@ -98,36 +122,45 @@
                     @foreach ($pedido->elementos as $key => $elemento)
                         <tr>
                             @if ($key === 0)
+                                @if (!request('pedido_id'))
+
                                 <td rowspan="{{ $totalElements }}">{{ $pedido->id }}</td>
-                                @if ($user->rol === 'administrador')
+                                @endif
+
+
+                                @if ($user->rol === 'administrador' && !request('pedido_id'))
                                     <td rowspan="{{ $totalElements }}">{{ $pedido->colaborador->nombre }}</td>
                                 @endif
+                                @if (!request('pedido_id'))
                                 <td rowspan="{{ $totalElements }}">{{ $pedido->fecha_pedido }}</td>
-                                <td rowspan="{{ $totalElements }}">
-                                    @if ($pedido->estado == 'pendiente')
-                                        <span class="badge badge-warning">Pendiente</span>
-                                    @elseif ($pedido->estado == 'aprobado')
-                                        <span class="badge badge-success">Aprobado</span>
-                                    @else
-                                        <span class="badge badge-danger">Rechazado</span>
-                                    @endif
-                                </td>
+                                    <td rowspan="{{ $totalElements }}">
+                                        @if ($pedido->estado == 'pendiente')
+                                            <span class="badge badge-warning">Pendiente</span>
+                                        @elseif ($pedido->estado == 'aprobado')
+                                            <span class="badge badge-success">Aprobado</span>
+                                        @else
+                                            <span class="badge badge-danger">Rechazado</span>
+                                        @endif
+                                    </td>
+                                @endif
                             @endif
-                            <td>{{ $elemento->nombre }}</td>
-                            <td>{{ $elemento->pivot->cantidad }}</td>
-                            <td>{{ $elemento->categoria->nombre }}</td>
-                            <td class="text-right" >${{ number_format($elemento->pivot->cantidad * $elemento->pivot->precio_unitario_en_pedido, 2) }}</td>
+                            <td>{{ $elemento->descripcion }}</td>
+                            <td class="text-center">{{ $elemento->pivot->cantidad }}</td>
+                            @if (!request('pedido_id'))
+                                <td>{{ $elemento->categoria->nombre }}</td>
+                            @endif
+                            <td class="text-right">${{ number_format($elemento->pivot->cantidad * $elemento->pivot->precio_unitario_en_pedido, 2) }}</td>
                         </tr>
                     @endforeach
                 @empty
                     <tr>
-                        <td colspan="{{ $user->rol === 'administrador' ? 7 : 6 }}">No hay pedidos que coincidan con los criterios.</td>
+                        <td colspan="{{ $user->rol === 'administrador' ? (request('pedido_id') ? 4 : 8) : 7 }}">No hay pedidos que coincidan con los criterios.</td>
                     </tr>
                 @endforelse
             </tbody>
             <tfoot>
                 <tr>
-                    <th colspan="{{ $user->rol === 'administrador' ? 7 : 6 }}">Total Reporte</th>
+                    <th colspan="{{ $user->rol === 'administrador' ? (request('pedido_id') ? 2 : 7) : 6 }}">Total Reporte</th>
                     <th class="text-right">${{ number_format($total_reporte, 2) }}</th>
                 </tr>
             </tfoot>
@@ -152,7 +185,7 @@
             document.body.innerHTML = '<h1>Reporte de Pedido</h1><br>' + printContents;
             window.print();
             document.body.innerHTML = originalContents;
-            location.reload(); // Recargar la página para restaurar el contenido
+            location.reload();
         }
     </script>
 </body>

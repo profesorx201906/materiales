@@ -14,6 +14,7 @@ class ReportesController extends Controller
     {
         $user = Auth::user();
         $pedidos = collect(); // Inicializamos una colección vacía
+        $total_aprobado = 0; // Nueva variable para el total del colaborador
         $total_reporte = 0;
 
         if ($user->rol === 'administrador') {
@@ -41,8 +42,10 @@ class ReportesController extends Controller
         } elseif ($user->rol === 'colaborador') {
             $colaborador = Colaborador::where('nombre', $user->nombre_usuario)->first();
             if ($colaborador) {
+                // El colaborador solo ve sus pedidos aprobados
                 $pedidos = Pedido::with('elementos')->where('colaborador_id', $colaborador->id)->latest()->paginate(25);
-                $total_reporte = $pedidos->sum('valor_total');
+                $total_reporte = $pedidos->where('estado', 'aprobado')->sum('valor_total');
+
             }
 
             return view('reports.reports', compact('pedidos', 'user', 'total_reporte'));
