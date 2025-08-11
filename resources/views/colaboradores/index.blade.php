@@ -78,7 +78,7 @@
             </tbody>
         </table>
         
-        {{ $colaboradores->links() }}
+        {{ $colaboradores->links('vendor.pagination.custom-pagination') }}
     </div>
 </body>
 </html>
