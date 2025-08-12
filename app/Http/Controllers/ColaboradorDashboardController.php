@@ -46,7 +46,7 @@ class ColaboradorDashboardController extends Controller
         }
 
         if ($colaborador->categoria_id) {
-            $elementos = Elemento::where('categoria_id', $colaborador->categoria_id)->orderBy('nombre', 'asc')->get();
+            $elementos = Elemento::where('categoria_id', $colaborador->categoria_id)->orderBy('descripcion', 'asc')->get();
         } else {
             $elementos = collect();
         }
